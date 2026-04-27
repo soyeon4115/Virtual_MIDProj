@@ -15,8 +15,16 @@ public class GameDirector : MonoBehaviour
     public Image uiChocolate;
     public Image uiCake;
 
+    public Sprite crushedMeron;
+    public Sprite crushedChocolate;
+
     public GameObject gameOverPanel;
     public TextMeshProUGUI finalScoreText;
+
+    public AudioClip dropSound;
+    public AudioClip gangNamSound;
+
+    bool playedGangNam = false;
 
     int hp = 3;
     float score = 0;
@@ -26,9 +34,6 @@ public class GameDirector : MonoBehaviour
 
     void Start()
     {
-        chocolate = GameObject.Find("HP_0");
-        meron = GameObject.Find("HP_2");
-        cake = GameObject.Find("HP_5");
 
         if (gameOverPanel != null)
         {
@@ -41,6 +46,7 @@ public class GameDirector : MonoBehaviour
         if (isGameOver) return;
 
         timeLimit -= Time.deltaTime;
+
         if (timeLimit < 0)
         {
             timeLimit = 0;
@@ -58,6 +64,12 @@ public class GameDirector : MonoBehaviour
             scoreText.text = "점수: " + (int)score;
         }
 
+        if (timeLimit <= 20.0f && !playedGangNam)
+        {
+            GetComponent<AudioSource>().PlayOneShot(gangNamSound);
+            playedGangNam = true;
+        }
+
         if (timeLimit <= 0 || hp <= 0)
         {
             GameOver();
@@ -68,27 +80,28 @@ public class GameDirector : MonoBehaviour
     {
         if (isGameOver) return;
 
+        GetComponent<AudioSource>().PlayOneShot(dropSound);
+
         hp -= 1;
         score -= 30;
-
-        if (score < 0)
-        {
-            score = 0;
-        }
+        if (score < 0) score = 0;
 
         if (hp == 2)
         {
             meron.SetActive(false);
+            uiMeron.sprite = crushedMeron;
         }
         else if (hp == 1)
         {
             chocolate.SetActive(false);
+            uiChocolate.sprite = crushedChocolate;
         }
         else if (hp == 0)
         {
             cake.SetActive(false);
             GameOver();
         }
+
     }
 
     void GameOver()
@@ -110,13 +123,11 @@ public class GameDirector : MonoBehaviour
         if (chocolate != null) chocolate.SetActive(false);
         if (cake != null) cake.SetActive(false);
 
-        // 최종 점수 먼저 넣기
         if (finalScoreText != null)
         {
-            finalScoreText.text = "게임오버!!\n\n최종 점수: " + (int)score;
+            finalScoreText.text = "게임종료!!\n\n최종 점수: " + (int)score;
         }
 
-        // 그 다음 패널 켜기
         if (gameOverPanel != null)
         {
             gameOverPanel.SetActive(true);

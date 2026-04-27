@@ -7,14 +7,14 @@ public class EnemyGenerator : MonoBehaviour
     public GameObject old1;
     public GameObject old2;
 
+    // Generate 간격, 시간
     public float span = 1.5f;
     float delta = 0;
 
-    float[] lanes = { -3.0f, -1.75f, -0.5f };
-    int lastLane = -1;
+    float[] lanes = { -0.1f, -1.65f, -3.5f };
 
-    public float fastSpeed = 0.07f;
-    public float slowSpeed = 0.04f;
+    public float fastSpeed = 0.1f;
+    public float slowSpeed = 0.05f;
 
     void Update()
     {
@@ -44,17 +44,10 @@ public class EnemyGenerator : MonoBehaviour
             enemy = Instantiate(old2);
 
 
-
         int lane = Random.Range(0, lanes.Length);
-        while (lane == lastLane)
-        {
-            lane = Random.Range(0, lanes.Length);
-        }
-
-        lastLane = lane;
         float y = lanes[lane];
 
-        int direction = Random.Range(0, 2);
+        int direction = Random.Range(0, 2); // 좌 우 랜덤
 
 
         float speed = (type <= 1) ? fastSpeed : slowSpeed;
@@ -62,12 +55,29 @@ public class EnemyGenerator : MonoBehaviour
         if (direction == 0)
         {
             enemy.transform.position = new Vector3(-6.5f, y, 0);
-            enemy.GetComponent<EnemyController>().vx = speed;
+            enemy.GetComponent<EnemyController>().vx = speed; // 오른쪽
         }
         else
         {
             enemy.transform.position = new Vector3(6.5f, y, 0);
-            enemy.GetComponent<EnemyController>().vx = -speed;
+            enemy.GetComponent<EnemyController>().vx = -speed; // 왼쪽
+        }
+
+
+        // 레이어 설정
+        SpriteRenderer sr = enemy.GetComponent<SpriteRenderer>();
+
+        if (lane == 0)
+        {
+            sr.sortingOrder = 1;
+        }
+        else if (lane == 1)
+        {
+            sr.sortingOrder = 2;
+        }
+        else if (lane == 2)
+        {
+            sr.sortingOrder = 3;
         }
 
         enemy.GetComponent<EnemyController>().waitTime = 0.5f;

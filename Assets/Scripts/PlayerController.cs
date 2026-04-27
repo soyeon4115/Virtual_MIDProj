@@ -1,33 +1,61 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour
 {
-    public float moveSpeed = 0.1f;
+    float[] lanes = { -0.1f, -1.65f, -3.5f }; // 상, 중, 하
+    int currentLane = 1; // 중간에서 시작
+
+    public float moveSpeed = 5.0f;
+
+    float minX = -6.0f;
+    float maxX = 6.0f;
+
     void Start()
     {
         Application.targetFrameRate = 60;
+
+        Vector3 pos = transform.position;
+        pos.y = lanes[currentLane];
+        transform.position = pos;
     }
 
     void Update()
     {
-        if (Input.GetKey(KeyCode.LeftArrow))
+        Vector3 pos = transform.position;
+
+        // 좌우
+        if (Keyboard.current.leftArrowKey.isPressed)
         {
-            transform.Translate(-moveSpeed, 0, 0);
+            pos.x -= moveSpeed * Time.deltaTime;
         }
 
-        if (Input.GetKey(KeyCode.RightArrow))
+        if (Keyboard.current.rightArrowKey.isPressed)
         {
-            transform.Translate(moveSpeed, 0, 0);
+            pos.x += moveSpeed * Time.deltaTime;
         }
 
-        if (Input.GetKey(KeyCode.UpArrow))
+        // 상, 중, 하 
+        if (Keyboard.current.upArrowKey.wasPressedThisFrame)
         {
-            transform.Translate(0, moveSpeed, 0);
+            if (currentLane > 0)
+            {
+                currentLane--;
+                pos.y = lanes[currentLane];
+            }
         }
 
-        if (Input.GetKey(KeyCode.DownArrow))
+        if (Keyboard.current.downArrowKey.wasPressedThisFrame)
         {
-            transform.Translate(0, -moveSpeed, 0);
+            if (currentLane < lanes.Length - 1)
+            {
+                currentLane++;
+                pos.y = lanes[currentLane];
+            }
         }
+
+        pos.x = Mathf.Clamp(pos.x, minX, maxX);
+
+        transform.position = pos;
     }
 }
